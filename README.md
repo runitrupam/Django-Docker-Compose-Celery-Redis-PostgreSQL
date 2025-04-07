@@ -279,3 +279,46 @@ Here's a step-by-step explanation of each part:
    - `pgdata`: This is a named volume created for storing PostgreSQL data.
 
 This Docker Compose configuration sets up your Django application with PostgreSQL, Celery for background tasks, and Redis as a message broker. It's a comprehensive setup for development and testing of your Django project in a containerized environment.
+
+
+
+### @shared_task vs @app.task in Django with Celery
+
+```
+@shared_task
+	•	Used when you don’t have access to the Celery app instance.
+	•	Works well in reusable Django apps.
+	•	Simple to use, but can’t access advanced Celery features like self.request.
+
+Example:
+
+from celery import shared_task
+
+@shared_task
+def add(x, y):
+    return x + y
+
+
+
+⸻
+
+@app.task
+	•	Used when you have access to the Celery app instance.
+	•	Allows advanced features like bind=True (to access self.request).
+	•	Best for monolithic Django apps where the Celery instance is known.
+
+Example:
+
+from core.celery import app
+
+@app.task
+def add(x, y):
+    return x + y
+
+
+Conclusion
+	•	Use @shared_task for reusable apps or when you don’t have the Celery instance.
+	•	Use @app.task for projects where you control the Celery app.
+	•	For your monolithic Django app, @app.task is better.
+
+```
